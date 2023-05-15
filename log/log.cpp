@@ -20,7 +20,7 @@ Log::~Log()
     }
 }
 //异步需要设置阻塞队列的长度，同步不需要设置
-bool Log::init(const char *file_name, int close_log, int log_buf_size, int split_lines, int max_queue_size)
+bool Log::init(const char *file_name, int log_buf_size, int split_lines, int max_queue_size)
 {
     //如果设置了max_queue_size,则设置为异步
     if (max_queue_size >= 1)
@@ -31,8 +31,7 @@ bool Log::init(const char *file_name, int close_log, int log_buf_size, int split
         //flush_log_thread为回调函数,这里表示创建线程异步写日志
         pthread_create(&tid, NULL, flush_log_thread, NULL);
     }
-    
-    m_close_log = close_log;
+
     m_log_buf_size = log_buf_size;
     m_buf = new char[m_log_buf_size];
     memset(m_buf, '\0', m_log_buf_size);
@@ -58,7 +57,7 @@ bool Log::init(const char *file_name, int close_log, int log_buf_size, int split
     }
 
     m_today = my_tm.tm_mday;
-    
+
     m_fp = fopen(log_full_name, "a");
     if (m_fp == NULL)
     {
@@ -134,7 +133,7 @@ void Log::write_log(int level, const char *format, ...)
                      my_tm.tm_year + 1900, my_tm.tm_mon + 1, my_tm.tm_mday,
                      my_tm.tm_hour, my_tm.tm_min, my_tm.tm_sec, now.tv_usec, s);
     
-    int m = vsnprintf(m_buf + n, m_log_buf_size - n - 1, format, valst);
+    int m = vsnprintf(m_buf + n, m_log_buf_size - 1, format, valst);
     m_buf[n + m] = '\n';
     m_buf[n + m + 1] = '\0';
     log_str = m_buf;
